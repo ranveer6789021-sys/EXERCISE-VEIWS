@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f6f5ef">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#151515">
   <meta name="description" content="Create your Good Move account and keep a personal record of your workouts.">
   <title>Sign up &amp; save progress — Good Move</title>
   <style>
@@ -13,7 +13,7 @@
   <header class="wrap topbar"><a class="brand" href="index.html"><span class="brandmark">↗</span> good move</a><div class="topbar-actions"><button class="mode-toggle" id="mode-toggle" type="button" aria-pressed="true">Kids view</button><a class="back" href="index.html">← Workouts</a></div></header>
   <p class="wrap mode-note" id="mode-note" aria-live="polite"></p>
   <main class="wrap"><div class="intro"><div class="eyebrow">Your movement, your story</div><h1>Keep track of the good you do.</h1><p>Create a free account to save your completed workouts and come back to your progress later.</p></div>
-    <div class="shell"><div id="setup-warning" class="status">Accounts are not connected yet. The site owner needs to finish the secure account setup before people can sign up.</div><div id="kids-auth-note" class="status good kids-note" hidden>Kids can use the workouts without an account. Ask a parent or guardian to manage Google sign-in and saved progress.</div>
+    <div class="shell"><div id="setup-warning" class="status">Accounts are not connected yet. The site owner needs to finish the secure account setup before people can sign up.</div><div id="kids-auth-note" class="status good kids-note" hidden>Kids can use the workouts without an account. A parent or guardian can open sign-in below.<br><button type="button" id="parent-signin" class="primary" style="margin-top:10px">Parent or guardian sign in</button></div>
       <section id="auth-panel" class="panel" hidden><div id="auth-message" class="status" hidden role="status"></div><div class="auth-tabs"><button type="button" id="tab-signup" class="active">Create account</button><button type="button" id="tab-login">Log in</button></div><button class="google-btn" id="google-auth" type="button"><span aria-hidden="true">G</span> Continue with Google</button><div class="auth-divider">or use email</div>
         <form id="auth-form"><div id="name-wrap"><label for="full-name">Your name</label><input id="full-name" name="name" autocomplete="name" maxlength="80" placeholder="Alex" required></div><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters"><button id="auth-submit" class="primary full" type="submit">Create my account</button><p class="form-note">Use a unique password. We never store your password on this website.</p></form>
       </section>
@@ -35,8 +35,10 @@
     function showMessage(el, text, kind='') { el.textContent = text; el.className = `status ${kind}`; el.hidden = false; }
     function applyViewMode(next){viewMode=next;try{localStorage.setItem('goodmove-view-mode',next)}catch{}const kids=next==='kids';const button=$('mode-toggle');button.textContent=kids?'Kids view':'Adult view';button.setAttribute('aria-pressed',String(kids));button.setAttribute('aria-label','Current view: '+(kids?'Kids':'Adult')+'. Activate to switch.');$('mode-note').textContent=kids?'Kids view: keep movement fun, stay near a grown-up, and pause whenever you need.':'Adult view: choose a comfortable pace and take breaks whenever you need.';$('auth-panel').hidden=kids||isSignedIn;$('kids-auth-note').hidden=!kids||isSignedIn;}
     $('mode-toggle').addEventListener('click',()=>applyViewMode(viewMode==='kids'?'adult':'kids'));
+    $('parent-signin').addEventListener('click',()=>{applyViewMode('adult');setMode('login');$('auth-panel').scrollIntoView({behavior:'smooth',block:'center'});});
     function setMode(next) { mode=next; $('tab-signup').classList.toggle('active',mode==='signup'); $('tab-login').classList.toggle('active',mode==='login'); $('name-wrap').hidden=mode==='login'; $('full-name').required=mode==='signup'; $('password').autocomplete=mode==='signup'?'new-password':'current-password'; $('auth-submit').textContent=mode==='signup'?'Create my account':'Log in'; }
     $('tab-signup').addEventListener('click',()=>setMode('signup')); $('tab-login').addEventListener('click',()=>setMode('login'));
+    if(location.hash==='#login'){applyViewMode('adult');setMode('login');}
     async function refresh() {
       const {data:{session}}=await client.auth.getSession();
       isSignedIn=!!session;if(!session){$('dashboard').hidden=true;applyViewMode(viewMode);return;}
